@@ -13,5 +13,5 @@ Supported sites:
 * [Tantabus.ai](https://tantabus.ai)
 * [Twibooru](https://twibooru.org)
 
-For proper function, this script requires you to be logged into any site you wish to use it on.
+For proper function, this script requires you to be logged into any site you wish to use it on.  
 By default, cooldown is set to 5000 milliseconds between every tag change. This can be lowered globally or on a site-by-site basis, but doing so may result in errors and rate limiting.
