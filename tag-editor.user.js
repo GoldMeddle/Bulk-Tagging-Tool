@@ -1,18 +1,24 @@
 // ==UserScript==
-// @name        Bulk Tag Editor
-// @description Streamlined bulk tag editing
-// @version     1.2.0
-// @author      Marker
+// @name        Bulk Tagging Tool
+// @description Streamlined BoR tag editing
+// @icon        https://twibooru.org/favicon.svg
+// @version     1.3.0
+// @author      Gold Meddle
 // @license     MIT
-// @namespace   https://github.com/marktaiwan/
-// @homepageURL https://github.com/marktaiwan/Philomena-Bulk-Tag-Editor
-// @supportURL  https://github.com/marktaiwan/Philomena-Bulk-Tag-Editor/issues
+// @namespace   https://github.com/GoldMeddle/
+// @homepageURL https://github.com/GoldMeddle/Bulk-Tagging-Tool
+// @supportURL  https://github.com/GoldMeddle/Bulk-Tagging-Tool/issues
+// @updateURL   https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/master/tag-editor.user.js
+// @downloadURL https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/master/tag-editor.user.js
 // @match       *://*.derpibooru.org/*
-// @match       *://*.trixiebooru.org/*
-// @match       *://*.ponybooru.org/*
+// @match       *://*.furbooru.org/*
+// @match       *://*.manebooru.art/*
 // @match       *://*.ponerpics.org/*
-// @match       *://*.ponerpics.com/*
+// @match       *://*.ponybooru.org/*
+// @match       *://*.tantabus.ai/*
+// @match       *://*.trixiebooru.org/*
 // @match       *://*.twibooru.org/*
+
 // @inject-into content
 // @noframes
 // @grant       GM_getValue
@@ -34,8 +40,11 @@
   };
   const boorus = {
     derpibooru: booruDefault,
-    ponybooru: booruDefault,
+    furbooru: booruDefault,
+    manebooru: booruDefault,
     ponerpics: booruDefault,
+    ponybooru: booruDefault,
+    tantabus: booruDefault,
     twibooru: {
       ...booruDefault,
       acSource: '/tags/autocomplete.json?term=',
@@ -85,10 +94,13 @@
    */
   function currentBooru() {
     const booruHostnames = {
-      twibooru: /(www\.)?twibooru\.org/i,
-      ponybooru: /(www\.)?ponybooru\.org/i,
-      ponerpics: /(www\.)?ponerpics\.(org|com)/i,
       derpibooru: /(www\.)?(derpibooru|trixiebooru)\.org/i,
+ furbooru: /(www\.)?furbooru\.(org|com)/i,
+ manebooru: /(www\.)?manebooru\.(art|org|com)/i,
+ ponerpics: /(www\.)?ponerpics\.(org|com)/i,
+ ponybooru: /(www\.)?ponybooru\.org/i,
+ tantabus: /(www\.)?tantabus\.ai/i,
+ twibooru: /(www\.)?twibooru\.org/i,
     };
     const hostname = window.location.hostname;
     for (const [booru, re] of Object.entries(booruHostnames)) {
@@ -175,11 +187,11 @@
       input.classList.add('input', `${SCRIPT_ID}--taginput-input`);
       [
         ['autocapitalize', 'none'],
-        ['autocomplete', 'off'],
-        ['data-autocomplete', 'single-tag'],
-        ['data-autocomplete-max-suggestions', '5'],
-        ['placeholder', 'add a tag'],
-        ['type', 'text'],
+ ['autocomplete', 'off'],
+ ['data-autocomplete', 'single-tag'],
+ ['data-autocomplete-max-suggestions', '5'],
+ ['placeholder', 'add a tag'],
+ ['type', 'text'],
       ].forEach(([attr, val]) => input.setAttribute(attr, val));
       fancyEditor.append(input);
       const br = create('br');
@@ -267,7 +279,7 @@
     }
   }
 
-  function createTagEditor() {
+  function createTagEditor(mode) {
     const field = create('div');
     field.id = `${SCRIPT_ID}_script_container`;
     field.classList.add('field');
@@ -286,14 +298,20 @@
     const loadButton = createButton('Load tags', `${SCRIPT_ID}_load_button`);
     loadButton.dataset.clickPreventdefault = 'true';
     loadButton.classList.add('button--state-warning');
-    field.append(applyButton, saveButton, loadButton);
-    return field;
+    if (mode === 'post') {
+      field.append(applyButton, saveButton, loadButton);
+      return field;}
+      const selectAllButton = createButton('Select all', `${SCRIPT_ID}_select_all_button`);
+      selectAllButton.dataset.clickPreventdefault = 'true';
+      selectAllButton.classList.add('button--state-danger');
+      field.append(applyButton, saveButton, loadButton, selectAllButton);
+      return field;
   }
   function insertUI() {
     const tagsForm = $('#tags-form');
     const tagInput = $(`[name="${getBooruParam('newTagParam')}"]`);
     if (!tagInput || !tagsForm || $(`#${SCRIPT_ID}_script_container`)) return; // tagging disabled or ui already exists
-    const field = createTagEditor();
+    const field = createTagEditor('post');
     const inputField = $(`#${SCRIPT_ID}_input_field`, field);
     const applyButton = $(`#${SCRIPT_ID}_apply_button`, field);
     const saveButton = $(`#${SCRIPT_ID}_save_button`, field);
@@ -312,7 +330,7 @@
     onLeftClick(() => {
       applyTags(
         deserializeTags(tagAdd.plainEditor.value),
-        deserializeTags(tagRemove.plainEditor.value),
+                deserializeTags(tagRemove.plainEditor.value),
       );
     }, applyButton);
     onLeftClick(() => {
@@ -338,11 +356,12 @@
     const toggleButton = createAnchorButton('Tag Edit', `js--${SCRIPT_ID}--toggle`, 'fa-tags');
     toggleButton.accessKey = 't';
     onLeftClick(toggleUI, toggleButton);
-    const editor = createTagEditor();
+    const editor = createTagEditor('gallery');
     const inputField = $(`#${SCRIPT_ID}_input_field`, editor);
     const applyButton = $(`#${SCRIPT_ID}_apply_button`, editor);
     const saveButton = $(`#${SCRIPT_ID}_save_button`, editor);
     const loadButton = $(`#${SCRIPT_ID}_load_button`, editor);
+    const selectAllButton = $(`#${SCRIPT_ID}_select_all_button`, editor);
     const messageBox = create('section');
     messageBox.id = `${SCRIPT_ID}--message`;
     messageBox.style.margin = '5px';
@@ -358,7 +377,7 @@
       applyButton.disabled = true;
       await bulkApplyTags(
         deserializeTags(tagAdd.plainEditor.value),
-        deserializeTags(tagRemove.plainEditor.value),
+                          deserializeTags(tagRemove.plainEditor.value),
       );
       applyButton.disabled = false;
     }, applyButton);
@@ -370,6 +389,34 @@
       tagAdd.loadTags();
       tagRemove.loadTags();
     }, loadButton);
+    onLeftClick(() => {
+      (() => {
+        const baseClasses = [
+          "media-box__header",
+       "media-box__header--link-row",
+       "media-box__header--unselected"
+        ];
+        const selectedClass = "media-box__header--selected";
+
+        const elements = Array.from(document.querySelectorAll("[class]")).filter(el =>
+        baseClasses.every(c => el.classList.contains(c))
+        );
+
+        if (elements.length === 0) return;
+
+        const allSelected = elements.every(el =>
+        el.classList.contains(selectedClass)
+        );
+
+        elements.forEach(el => {
+          if (allSelected) {
+            el.classList.remove(selectedClass);
+          } else {
+            el.classList.add(selectedClass);
+          }
+        });
+      })();
+    }, selectAllButton);
     editor.style.marginTop = '10px';
     editor.classList.add('layout--narrow', 'hidden');
     imageListHeader.append(toggleButton);
@@ -385,12 +432,12 @@
     if (!active) {
       list.addEventListener('click', boxClickHandler);
       $$('.media-box__header', list).forEach(header =>
-        header.classList.add('media-box__header--unselected'),
+      header.classList.add('media-box__header--unselected'),
       );
     } else {
       list.removeEventListener('click', boxClickHandler);
       $$('.media-box__header', list).forEach(header =>
-        header.classList.remove('media-box__header--selected', 'media-box__header--unselected'),
+      header.classList.remove('media-box__header--selected', 'media-box__header--unselected'),
       );
     }
   }
@@ -430,12 +477,12 @@
   }
   async function bulkApplyTags(tagsToAdd, tagsToRemove) {
     const imageList = [...getBoxHeaders()]
-      .filter(header => header.classList.contains('media-box__header--selected'))
-      .map(header => {
-        const mediaBox = header.parentElement;
-        const id = mediaBox.dataset.imageId ?? mediaBox.dataset.postId;
-        return id;
-      });
+    .filter(header => header.classList.contains('media-box__header--selected'))
+    .map(header => {
+      const mediaBox = header.parentElement;
+      const id = mediaBox.dataset.imageId ?? mediaBox.dataset.postId;
+      return id;
+    });
     let done = 0;
     let errors = 0;
     const total = imageList.length;
@@ -466,8 +513,8 @@
     const formEntries = [
       ['_method', 'put'],
       [authTokenParam, getToken()],
-      [getBooruParam('oldTagParam'), serializeTags(oldTags)],
-      [getBooruParam('newTagParam'), serializeTags(newTags)],
+ [getBooruParam('oldTagParam'), serializeTags(oldTags)],
+ [getBooruParam('newTagParam'), serializeTags(newTags)],
     ];
     const form = new FormData();
     formEntries.forEach(([key, val]) => form.set(key, val));
