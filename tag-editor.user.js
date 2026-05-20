@@ -2,7 +2,7 @@
 // @name        Bulk Tagging Tool
 // @description Streamlined BoR tag editing
 // @icon        https://twibooru.org/favicon.svg
-// @version     1.3.0
+// @version     1.3.1
 // @author      Gold Meddle
 // @license     MIT
 // @namespace   https://github.com/GoldMeddle/
@@ -200,7 +200,7 @@
       this.plainEditor = textarea;
       this.fancyEditor = fancyEditor;
       this.inputField = input;
-      this.loadTags();
+      this.loadPreset();
       // bind event listeners
       this.dom.addEventListener('click', e => {
         if (!(e.target instanceof HTMLElement)) return;
@@ -266,12 +266,12 @@
       }
       this.plainEditor.value = serializeTags(this.tags);
     }
-    saveTags() {
+    savePreset() {
       this.tags = deserializeTags(this.plainEditor.value);
       GM_setValue(this.id, this.tags);
       this.plainEditor.value = serializeTags(this.tags);
     }
-    loadTags() {
+    loadPreset() {
       this.clearFancyEditor();
       this.tags = GM_getValue(this.id, []);
       this.tags.forEach(this.insertTagElement, this);
@@ -292,10 +292,10 @@
     const applyButton = createButton('Apply changes', `${SCRIPT_ID}_apply_button`);
     applyButton.dataset.clickPreventdefault = 'true';
     applyButton.classList.add('button--state-primary');
-    const saveButton = createButton('Save tags', `${SCRIPT_ID}_save_button`);
+    const saveButton = createButton('Save preset', `${SCRIPT_ID}_save_button`);
     saveButton.dataset.clickPreventdefault = 'true';
     saveButton.classList.add('button--state-success');
-    const loadButton = createButton('Load tags', `${SCRIPT_ID}_load_button`);
+    const loadButton = createButton('Load preset', `${SCRIPT_ID}_load_button`);
     loadButton.dataset.clickPreventdefault = 'true';
     loadButton.classList.add('button--state-warning');
     if (mode === 'post') {
@@ -304,7 +304,10 @@
       const selectAllButton = createButton('Select all', `${SCRIPT_ID}_select_all_button`);
       selectAllButton.dataset.clickPreventdefault = 'true';
       selectAllButton.classList.add('button--state-danger');
-      field.append(applyButton, saveButton, loadButton, selectAllButton);
+      const fancyToggleButton = createButton('Plain Editor', `${SCRIPT_ID}_fancy_toggle_button`);
+      fancyToggleButton.dataset.clickPreventdefault = 'true';
+      fancyToggleButton.classList.add('button--state-primary', 'button--bold');
+      field.append(applyButton, saveButton, loadButton, selectAllButton, fancyToggleButton);
       return field;
   }
   function insertUI() {
@@ -334,12 +337,12 @@
       );
     }, applyButton);
     onLeftClick(() => {
-      tagAdd.saveTags();
-      tagRemove.saveTags();
+      tagAdd.savePreset();
+      tagRemove.savePreset();
     }, saveButton);
     onLeftClick(() => {
-      tagAdd.loadTags();
-      tagRemove.loadTags();
+      tagAdd.loadPreset();
+      tagRemove.loadPreset();
     }, loadButton);
     $('.js-taginput-show')?.addEventListener('click', () => {
       [tagAdd, tagRemove].forEach(editor => {
@@ -362,6 +365,7 @@
     const saveButton = $(`#${SCRIPT_ID}_save_button`, editor);
     const loadButton = $(`#${SCRIPT_ID}_load_button`, editor);
     const selectAllButton = $(`#${SCRIPT_ID}_select_all_button`, editor);
+    const fancyToggleButton = $(`#${SCRIPT_ID}_fancy_toggle_button`, editor);
     const messageBox = create('section');
     messageBox.id = `${SCRIPT_ID}--message`;
     messageBox.style.margin = '5px';
@@ -382,12 +386,12 @@
       applyButton.disabled = false;
     }, applyButton);
     onLeftClick(() => {
-      tagAdd.saveTags();
-      tagRemove.saveTags();
+      tagAdd.savePreset();
+      tagRemove.savePreset();
     }, saveButton);
     onLeftClick(() => {
-      tagAdd.loadTags();
-      tagRemove.loadTags();
+      tagAdd.loadPreset();
+      tagRemove.loadPreset();
     }, loadButton);
     onLeftClick(() => {
       (() => {
@@ -417,6 +421,16 @@
         });
       })();
     }, selectAllButton);
+    onLeftClick(() => {
+      [tagAdd, tagRemove].forEach(editor => {
+        editor.tags = deserializeTags(editor.plainEditor.value);
+        editor.clearFancyEditor();
+        editor.tags.forEach(editor.insertTagElement, editor);
+        editor.plainEditor.classList.toggle('hidden');
+        editor.fancyEditor.classList.toggle('hidden');
+      });
+      fancyToggleButton.innerText = fancyToggleButton.innerText === 'Plain Editor' ? 'Fancy Editor' : 'Plain Editor';
+    }, fancyToggleButton);
     editor.style.marginTop = '10px';
     editor.classList.add('layout--narrow', 'hidden');
     imageListHeader.append(toggleButton);
