@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name        Bulk Tagging Tool
-// @description Streamlined BoR tag editing
+// @name        Bulk Tagging Tool (Mod Mode)
+// @description Streamlined BoR tag editing (Clientside cooldown disabled on Ponerpics and Twibooru)
 // @icon        https://twibooru.org/favicon.svg
 // @version     1.3.1
 // @author      Gold Meddle
@@ -8,8 +8,8 @@
 // @namespace   https://github.com/GoldMeddle/
 // @homepageURL https://github.com/GoldMeddle/Bulk-Tagging-Tool
 // @supportURL  https://github.com/GoldMeddle/Bulk-Tagging-Tool/issues
-// @updateURL   https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/master/tag-editor.user.js
-// @downloadURL https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/master/tag-editor.user.js
+// @updateURL   https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/modmode/tag-editor.user.js
+// @downloadURL https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/modmode/tag-editor.user.js
 // @match       *://*.derpibooru.org/*
 // @match       *://*.furbooru.org/*
 // @match       *://*.manebooru.art/*
@@ -42,7 +42,10 @@
     derpibooru: booruDefault,
     furbooru: booruDefault,
     manebooru: booruDefault,
-    ponerpics: booruDefault,
+    ponerpics: {
+      ...booruDefault,
+      cooldown: 0,
+    },
     ponybooru: booruDefault,
     tantabus: booruDefault,
     twibooru: {
@@ -53,6 +56,7 @@
       oldTagParam: 'post[old_tag_list]',
       newTagParam: 'post[tag_input]',
       imagelistSelector: '#imagelist_container > section.block__header > div.flex__right',
+      cooldown: 0,
     },
   };
 
