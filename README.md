@@ -1,17 +1,15 @@
-# BuTT: Bulk Tagging Tool
-A fork of [Marker's userscript,](https://github.com/marktaiwan/Philomena-Bulk-Tag-Editor) adding support for more boorus and a "Select all" feature in gallery view.  
-This script is compatible with modern Booru on Rails and its rewrite, Philomena. All known sites in the BoR family are fully supported.
+# BuTT: Bulk Tagging Tool (Mod Mode)
+A branch of a fork of [Marker's userscript,](https://github.com/marktaiwan/Philomena-Bulk-Tag-Editor) keeping the fork's improvements while removing clientside cooldowns on Ponerpics and Twibooru.
+
+Unless you're staff, you will still be limited by the server's rate limits. As such, most users are advised to stick with the [master branch.](https://github.com/GoldMeddle/Bulk-Tagging-Tool/tree/master)
 
 Requires [Violentmonkey.](https://violentmonkey.github.io)
-## [Click here to install.](https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/master/tag-editor.user.js)
+## [Click here to install.](https://github.com/GoldMeddle/Bulk-Tagging-Tool/raw/modmode/tag-editor.user.js)
 Supported sites:
 * [Derpibooru](https://derpibooru.org)
 * [Furbooru](https://furbooru.org)
 * [Manebooru](https://manebooru.art)
-* [Ponerpics](https://ponerpics.org)
+* [Ponerpics](https://ponerpics.org) (cooldown disabled)
 * [Ponybooru](https://ponybooru.org)
 * [Tantabus](https://tantabus.ai)
-* [Twibooru](https://twibooru.org)
-
-For proper function, this script requires you to be logged into any site you wish to use it on.  
-All tag additions and removals on an individual post are simultaneous. In gallery view, cooldown defaults to 5000 milliseconds between posts. This can be lowered globally or on a site-by-site basis; doing so may result in errors and rate limiting.
+* [Twibooru](https://twibooru.org) (cooldown disabled)
