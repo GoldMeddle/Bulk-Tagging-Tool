@@ -95,12 +95,12 @@
   function currentBooru() {
     const booruHostnames = {
       derpibooru: /(www\.)?(derpibooru|trixiebooru)\.org/i,
- furbooru: /(www\.)?furbooru\.(org|com)/i,
- manebooru: /(www\.)?manebooru\.(art|org|com)/i,
- ponerpics: /(www\.)?ponerpics\.(org|com)/i,
- ponybooru: /(www\.)?ponybooru\.org/i,
- tantabus: /(www\.)?tantabus\.ai/i,
- twibooru: /(www\.)?twibooru\.org/i,
+      furbooru: /(www\.)?furbooru\.(org|com)/i,
+      manebooru: /(www\.)?manebooru\.(art|org|com)/i,
+      ponerpics: /(www\.)?ponerpics\.(org|com)/i,
+      ponybooru: /(www\.)?ponybooru\.org/i,
+      tantabus: /(www\.)?tantabus\.ai/i,
+      twibooru: /(www\.)?twibooru\.org/i,
     };
     const hostname = window.location.hostname;
     for (const [booru, re] of Object.entries(booruHostnames)) {
@@ -187,11 +187,11 @@
       input.classList.add('input', `${SCRIPT_ID}--taginput-input`);
       [
         ['autocapitalize', 'none'],
- ['autocomplete', 'off'],
- ['data-autocomplete', 'single-tag'],
- ['data-autocomplete-max-suggestions', '5'],
- ['placeholder', 'add a tag'],
- ['type', 'text'],
+        ['autocomplete', 'off'],
+        ['data-autocomplete', 'single-tag'],
+        ['data-autocomplete-max-suggestions', '5'],
+        ['placeholder', 'add a tag'],
+        ['type', 'text'],
       ].forEach(([attr, val]) => input.setAttribute(attr, val));
       fancyEditor.append(input);
       const br = create('br');
@@ -300,15 +300,16 @@
     loadButton.classList.add('button--state-warning');
     if (mode === 'post') {
       field.append(applyButton, saveButton, loadButton);
-      return field;}
-      const selectAllButton = createButton('Select all', `${SCRIPT_ID}_select_all_button`);
-      selectAllButton.dataset.clickPreventdefault = 'true';
-      selectAllButton.classList.add('button--state-danger');
-      const fancyToggleButton = createButton('Plain Editor', `${SCRIPT_ID}_fancy_toggle_button`);
-      fancyToggleButton.dataset.clickPreventdefault = 'true';
-      fancyToggleButton.classList.add('button--state-primary', 'button--bold');
-      field.append(applyButton, saveButton, loadButton, selectAllButton, fancyToggleButton);
       return field;
+    }
+    const selectAllButton = createButton('Select all', `${SCRIPT_ID}_select_all_button`);
+    selectAllButton.dataset.clickPreventdefault = 'true';
+    selectAllButton.classList.add('button--state-danger');
+    const fancyToggleButton = createButton('Plain Editor', `${SCRIPT_ID}_fancy_toggle_button`);
+    fancyToggleButton.dataset.clickPreventdefault = 'true';
+    fancyToggleButton.classList.add('button--state-primary', 'button--bold');
+    field.append(applyButton, saveButton, loadButton, selectAllButton, fancyToggleButton);
+    return field;
   }
   function insertUI() {
     const tagsForm = $('#tags-form');
@@ -333,7 +334,7 @@
     onLeftClick(() => {
       applyTags(
         deserializeTags(tagAdd.plainEditor.value),
-                deserializeTags(tagRemove.plainEditor.value),
+        deserializeTags(tagRemove.plainEditor.value),
       );
     }, applyButton);
     onLeftClick(() => {
@@ -381,7 +382,7 @@
       applyButton.disabled = true;
       await bulkApplyTags(
         deserializeTags(tagAdd.plainEditor.value),
-                          deserializeTags(tagRemove.plainEditor.value),
+        deserializeTags(tagRemove.plainEditor.value),
       );
       applyButton.disabled = false;
     }, applyButton);
@@ -446,12 +447,12 @@
     if (!active) {
       list.addEventListener('click', boxClickHandler);
       $$('.media-box__header', list).forEach(header =>
-      header.classList.add('media-box__header--unselected'),
+        header.classList.add('media-box__header--unselected'),
       );
     } else {
       list.removeEventListener('click', boxClickHandler);
       $$('.media-box__header', list).forEach(header =>
-      header.classList.remove('media-box__header--selected', 'media-box__header--unselected'),
+        header.classList.remove('media-box__header--selected', 'media-box__header--unselected'),
       );
     }
   }
@@ -491,12 +492,12 @@
   }
   async function bulkApplyTags(tagsToAdd, tagsToRemove) {
     const imageList = [...getBoxHeaders()]
-    .filter(header => header.classList.contains('media-box__header--selected'))
-    .map(header => {
-      const mediaBox = header.parentElement;
-      const id = mediaBox.dataset.imageId ?? mediaBox.dataset.postId;
-      return id;
-    });
+      .filter(header => header.classList.contains('media-box__header--selected'))
+      .map(header => {
+        const mediaBox = header.parentElement;
+        const id = mediaBox.dataset.imageId ?? mediaBox.dataset.postId;
+        return id;
+      });
     let done = 0;
     let errors = 0;
     const total = imageList.length;
@@ -527,8 +528,8 @@
     const formEntries = [
       ['_method', 'put'],
       [authTokenParam, getToken()],
- [getBooruParam('oldTagParam'), serializeTags(oldTags)],
- [getBooruParam('newTagParam'), serializeTags(newTags)],
+    [getBooruParam('oldTagParam'), serializeTags(oldTags)],
+    [getBooruParam('newTagParam'), serializeTags(newTags)],
     ];
     const form = new FormData();
     formEntries.forEach(([key, val]) => form.set(key, val));
